@@ -25,6 +25,10 @@ let authors = [
     name: "Sandi Metz", // birthyear not known
     id: "afa5b6f3-344d-11e9-a414-719c6709cf3e",
   },
+  {
+    name: "Malcolm Harris",
+    id: "afa5b6f4-344d-11e9-a414-719c6709cf3e",
+  },
 ];
 
 /*
@@ -110,11 +114,13 @@ const typeDefs = `
     id: ID!
     born: Int
     books: [Book]!
+    bookCount: Int!
   }
   type Query {
     bookCount: Int!
     authorCount: Int!
     allBooks: [Book]!
+    allAuthors: [Author]!
   }
 `;
 
@@ -123,6 +129,11 @@ const resolvers = {
     bookCount: () => books.length,
     authorCount: () => authors.length,
     allBooks: () => books,
+    allAuthors: () => authors,
+  },
+  Author: {
+    bookCount: (author) =>
+      books.filter((book) => book.author === author.name).length,
   },
 };
 
