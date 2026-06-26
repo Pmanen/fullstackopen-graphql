@@ -32,12 +32,12 @@ const Authors = (props) => {
         </tbody>
       </table>
 
-      <BirthyearForm />
+      <BirthyearForm allAuthors={authors.data.allAuthors} />
     </div>
   )
 }
 
-const BirthyearForm = () => {
+const BirthyearForm = ({ allAuthors }) => {
   const [name, setName] = useState('')
   const [born, setBorn] = useState('')
 
@@ -64,11 +64,11 @@ const BirthyearForm = () => {
       <form onSubmit={submit}>
         <div>
           <label>name:</label>
-          <input
-            type="text"
-            value={name}
-            onChange={({ target }) => setName(target.value)}
-          />
+          <select name="name" onChange={({ target }) => setName(target.value)} >
+            {allAuthors.map((a) => {
+              return (<option key={a.id} value={a.name}>{a.name}</option>)
+            })}
+          </select>
         </div>
         <div>
           <label>born:</label>
