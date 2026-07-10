@@ -29,14 +29,41 @@ const resolvers = {
       const author = await Author.findOne({ name: args.author }) ||
         await new Author({ name: args.author}).save()
       const book = new Book({ ...args, id: uuid(), author })
-      await book.save()
+      try {
+        await book.save()
+      } catch (error) {
+        throw new GraphQLError(error.message, {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args,
+            error
+          },
+        })
+      }
       return book.populate('author');
     },
     editAuthor: async (root, { name, setBornTo }) => {
       const author = await Author.findOne({ name })
-      if (!author) return null
+      if (!author) {
+        throw new GraphQLError(`Author ${name} not found`, {
+          extensions: {
+            code: 'NOT_FOUND',
+            invalidArgs: { name },
+          },
+        })
+      }
       author.born = setBornTo
-      await author.save()
+      try {
+        await author.save()
+      } catch (error) {
+        throw new GraphQLError(error.message, {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: { setBornTo },
+            error
+          },
+        })
+      }
       return author;
     },
   },
