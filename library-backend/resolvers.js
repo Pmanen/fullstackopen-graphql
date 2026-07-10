@@ -28,6 +28,15 @@ const resolvers = {
       1
   },
   Mutation: {
+    _resetDatabase: async () => {
+      if (process.env.NODE_ENV !== 'test') {
+        throw new GraphQLError('_resetDatabase is only available in test mode')
+      }
+      await Author.deleteMany({})
+      await Book.deleteMany({})
+      await User.deleteMany({})
+      return true
+    },
     createUser: async (root, args) => {
       const user = new User({ username: args.username, favoriteGenre: args.favoriteGenre })
 
@@ -93,14 +102,7 @@ const resolvers = {
         })
       }
       const author = await Author.findOne({ name })
-      if (!author) {
-        throw new GraphQLError(`Author ${name} not found`, {
-          extensions: {
-            code: 'NOT_FOUND',
-            invalidArgs: { name },
-          },
-        })
-      }
+      if (!author) return null
       author.born = setBornTo
       try {
         await author.save()

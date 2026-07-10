@@ -30,6 +30,7 @@ const typeDefs = /* GraphQL */ `
   }
 
   type Mutation {
+    _resetDatabase: Boolean
     addBook(
       title: String!
       published: Int!
