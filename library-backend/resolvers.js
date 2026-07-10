@@ -7,15 +7,15 @@ const resolvers = {
   Query: {
     bookCount: async () => Book.collection.countDocuments(),
     authorCount: async () => Author.collection.countDocuments(),
-    allBooks: async (root, args) => {
-      // let return_val = books;
-      // if (args.author)
-      //   return_val = return_val.filter((book) => book.author === args.author);
-      // if (args.genre)
-      //   return_val = return_val.filter((book) =>
-      //     book.genres.includes(args.genre),
-      //   );
-      return Book.find({});
+    allBooks: async (root, { author, genre }) => {
+      const filter = {}
+      if (author) {
+        const foundAuthor = await Author.findOne({ name: author })
+        if (!foundAuthor) return []
+        filter.author = foundAuthor._id
+      }
+      if (genre) filter.genres = genre
+      return Book.find(filter).populate('author')
     },
     allAuthors: async () => Author.find({}),
   },
@@ -30,16 +30,14 @@ const resolvers = {
         await new Author({ name: args.author}).save()
       const book = new Book({ ...args, id: uuid(), author })
       await book.save()
-      return book;
+      return book.populate('author');
     },
-    editAuthor(root, { name, setBornTo }) {
-      // const author = authors.find((author) => author.name === name);
-      // if (!author) return null;
-      // const updatedAuthor = { ...author, born: setBornTo };
-      // authors = authors.map((author) =>
-      //   author.name === name ? updatedAuthor : author,
-      // );
-      // return updatedAuthor;
+    editAuthor: async (root, { name, setBornTo }) => {
+      const author = await Author.findOne({ name })
+      if (!author) return null
+      author.born = setBornTo
+      await author.save()
+      return author;
     },
   },
 };
